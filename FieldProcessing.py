@@ -21,14 +21,14 @@ class FieldProcessing:
             if not FieldProcessing.lstX_field[i][j].is_obj():
                 if typ == "Tree":
                     FieldProcessing.lstX_field[i][j].add_obj(Obj.Tree())
-                elif typ == "MiningGold":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.MiningGold())
-                elif typ == "MiningIron":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.MiningIron())
-                elif typ == "MiningStone":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.MiningStone())
-                elif typ == "MiningCopper":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.MiningCopper())
+                elif typ == "Gold":
+                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Gold())
+                elif typ == "Iron":
+                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Iron())
+                elif typ == "Stone":
+                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Stone())
+                elif typ == "Copper":
+                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Copper())
                 elif typ == "Berries":
                     FieldProcessing.lstX_field[i][j].add_obj(Obj.Berries())
                 count -= 1
@@ -98,9 +98,9 @@ class FieldProcessing:
 
         FieldProcessing.gen_resources(400, "Tree")
         FieldProcessing.gen_resources(200, "Berries")
-        FieldProcessing.gen_resources(100, "MiningStone")
-        FieldProcessing.gen_resources(50, "MiningIron")
-        FieldProcessing.gen_resources(45, "MiningCopper")
-        FieldProcessing.gen_resources(20, "MiningGold")
+        FieldProcessing.gen_resources(100, "Stone")
+        FieldProcessing.gen_resources(50, "Iron")
+        FieldProcessing.gen_resources(45, "Copper")
+        FieldProcessing.gen_resources(20, "Gold")
 
         return FieldProcessing.lstX_field

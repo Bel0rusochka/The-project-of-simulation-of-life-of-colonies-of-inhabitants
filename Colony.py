@@ -11,12 +11,12 @@ class Colony:
 
     def __init__(self, pole, lst_field):
         self.lst_humans = []
-        self.dict_field_types = {"tree": [], "empty": [], "gold": [], "iron": [], "copper": [], "stone": [],
-                                 "berries": []}
+        self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
+                                 "Berries": []}
 
         self.level_colony = 0
-        self.dict_inventory_and_pers = {"tree": [0, 0], "iron": [0, 0], "gold": [0, 0], "copper": [0, 0],
-                                        "berries": [0, 0], "stone": [0, 0]}
+        self.dict_inventory_and_pers = {"Tree": [0, 0], "Iron": [0, 0], "Gold": [0, 0], "Copper": [0, 0],
+                                        "Berries": [0, 0], "Stone": [0, 0]}
 
         self.dict_spec = {"woodman": [], "miner gold": [], "miner stone": [], "miner iron": [], "miner copper": [],
                           "pick up berries": [], "builder": [], "hunter": [], "warrior": [], "farmer": []}

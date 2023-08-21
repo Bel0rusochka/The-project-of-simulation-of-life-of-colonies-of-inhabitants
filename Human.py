@@ -10,7 +10,8 @@ class Human:
     plans = {"eating now": 0, "bring res": 1, "sleep": 1, "eating can wait": 1,
              "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
              "can long wait eating": 2, "find res": 2}
-    commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel", "change actual and first on stack"]
+    commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel",
+                      "change actual and first on stack"]
 
     def __init__(self, pole, colony):
         self.dict_skills = {"miner": 0, "cut down tree": 0, "pick up berries": 0, "build": 0}
@@ -21,10 +22,10 @@ class Human:
         self.actual = None
         self.hunger = 100
         self.spec_human = None
-        self.dict_field_types = {"tree": [], "empty": [], "gold": [], "iron": [], "copper": [], "stone": [],
-                                 "berries": []}
-        self.dict_inventory = {"tree": 0, "iron": 0, "gold": 0, "copper": 0, "berries": 0, "stone": 0}
-        # self.dict_armor = {"tree": 0, "iron": 0, "gold": 0, "copper": 0}
+        self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
+                                 "Berries": []}
+        self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
+        # self.dict_armor = {"Tree": 0, "iron": 0, "gold": 0, "copper": 0}
         self.pole = pole
         self.health = 100
         self.age = 18
@@ -48,8 +49,6 @@ class Human:
         if posY + 1 <= len(FieldProcessing.lstX_field[0]) - 1:
             self.remember_obj(FieldProcessing.lstX_field[posX][posY + 1])
 
-        # print(self.dict_field_types)
-
     def get_pos(self):
         return self.field.get_posX(), self.field.get_posY()
 
@@ -59,9 +58,8 @@ class Human:
     def skills_up(self, skill):
         if self.dict_skills[skill] <= 5:
             self.dict_skills[skill] += 0.0025
-        print(self.dict_skills)
 
-    def bring_colony_rec(self):
+    def bring_colony_res(self):
         if self.algoritm_moving(self.colony.spawn[0], self.colony.spawn[1]):
             for name in self.dict_inventory:
                 self.colony.dict_inventory_and_pers[name][0] += self.dict_inventory[name]
@@ -76,27 +74,13 @@ class Human:
             field = self.field
 
         if field.is_obj():
-            if isinstance(field.obj, Obj.Tree):
-                if field not in self.dict_field_types["tree"]:
-                    self.dict_field_types["tree"].append(field)
-            elif isinstance(field.obj, Obj.MiningGold):
-                if field not in self.dict_field_types["gold"]:
-                    self.dict_field_types["gold"].append(field)
-            elif isinstance(field.obj, Obj.MiningIron):
-                if field not in self.dict_field_types["iron"]:
-                    self.dict_field_types["iron"].append(field)
-            elif isinstance(field.obj, Obj.MiningCopper):
-                if field not in self.dict_field_types["copper"]:
-                    self.dict_field_types["copper"].append(field)
-            elif isinstance(field.obj, Obj.MiningStone):
-                if field not in self.dict_field_types["stone"]:
-                    self.dict_field_types["stone"].append(field)
-            elif isinstance(field.obj, Obj.MiningStone):
-                if field not in self.dict_field_types["berries"]:
-                    self.dict_field_types["berries"].append(field)
+            name_obj = field.obj.get_type()
+            if field not in self.dict_field_types[name_obj]:
+                self.dict_field_types[name_obj].append(field)
+
         else:
-            if field not in self.dict_field_types["empty"]:
-                self.dict_field_types["empty"].append(field)
+            if field not in self.dict_field_types["Empty"]:
+                self.dict_field_types["Empty"].append(field)
 
     def algoritm_moving(self, targetX, targetY):
 
@@ -185,22 +169,23 @@ class Human:
         self.actual = None
         self.set_actual()
 
+    # TODO try to make shooter
     def actualize_field(self, field):
 
-        if field in self.dict_field_types["tree"]:
-            self.dict_field_types["tree"].remove(field)
-        elif field in self.dict_field_types["iron"]:
-            self.dict_field_types["iron"].remove(field)
-        elif field in self.dict_field_types["copper"]:
-            self.dict_field_types["copper"].remove(field)
-        elif field in self.dict_field_types["gold"]:
-            self.dict_field_types["gold"].remove(field)
-        elif field in self.dict_field_types["stone"]:
-            self.dict_field_types["stone"].remove(field)
-        elif field in self.dict_field_types["empty"]:
-            self.dict_field_types["empty"].remove(field)
-        elif field in self.dict_field_types["berries"]:
-            self.dict_field_types["berries"].remove(field)
+        if field in self.dict_field_types["Tree"]:
+            self.dict_field_types["Tree"].remove(field)
+        elif field in self.dict_field_types["Iron"]:
+            self.dict_field_types["Iron"].remove(field)
+        elif field in self.dict_field_types["Copper"]:
+            self.dict_field_types["Copper"].remove(field)
+        elif field in self.dict_field_types["Gold"]:
+            self.dict_field_types["Gold"].remove(field)
+        elif field in self.dict_field_types["Stone"]:
+            self.dict_field_types["Stone"].remove(field)
+        elif field in self.dict_field_types["Empty"]:
+            self.dict_field_types["Empty"].remove(field)
+        elif field in self.dict_field_types["Berries"]:
+            self.dict_field_types["Berries"].remove(field)
         self.remember_obj(field)
 
     def extract_res(self, types):
@@ -215,8 +200,10 @@ class Human:
                 min_dstY = lst_obj[0].get_posY()
                 for target_field in lst_obj:
                     if not target_field.obj.have_miners:
-                        if min_dst > pow(pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5):
-                            min_dst = pow(pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5)
+                        if min_dst > pow(
+                                pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5):
+                            min_dst = pow(
+                                pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5)
                             min_dstX = target_field.get_posX()
                             min_dstY = target_field.get_posY()
                         self.current_dstX = min_dstX
@@ -228,32 +215,32 @@ class Human:
                     self.hang_out()
                     self.is_findObj = False
             else:
-                if self.algoritm_moving(self.current_dstX, self.current_dstY) and self.field in self.dict_field_types[types]:
+                if self.algoritm_moving(self.current_dstX, self.current_dstY) and self.field in self.dict_field_types[
+                    types]:
                     self.field.obj.mining(self, types)
                 else:
                     self.hang_out()
                     self.is_findObj = False
-
 
     def brain(self):
         if self.actual is None:
             self.set_actual()
         else:
             if self.actual == "mine gold":
-                self.extract_res("gold")
+                self.extract_res("Gold")
             elif self.actual == "mine iron":
-                self.extract_res("iron")
+                self.extract_res("Iron")
             elif self.actual == "mine copper":
-                self.extract_res("copper")
+                self.extract_res("Copper")
             elif self.actual == "mine stone":
-                self.extract_res("stone")
+                self.extract_res("Stone")
             elif self.actual == "cut down tree":
-                self.extract_res("tree")
+                self.extract_res("Tree")
             elif self.actual in ["eating now", "eating can wait", "can long wait eating"]:
                 self.actual = None
                 self.hunger = 100
             elif self.actual == "bring res":
-                self.bring_colony_rec()
+                self.bring_colony_res()
             else:
                 self.hang_out()
 
@@ -272,11 +259,11 @@ class Human:
         elif self.hunger <= 75 and "can long wait eating" != self.actual and "eating can wait" not in list(
                 self.dict_plans.keys()):
             self.add_plan("can long wait eating")
-        #self.hunger -= 0.2
+        # self.hunger -= 0.2
         self.age += 0.0001
         self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
-        # self.add_plan("cut down tree")
+        # self.add_plan("cut down Tree")
         if self.actual == "wait":
             self.set_actual()
         # print(self.dict_plans, self.dict_field_types)
