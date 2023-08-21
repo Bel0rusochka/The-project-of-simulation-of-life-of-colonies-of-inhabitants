@@ -1,26 +1,28 @@
 import os
 import pygame
 from Human import *
+from abc import ABC, abstractmethod
 
 
-class Obj:
-    def __init__(self):
-        self.cost = 50
-        self.level = 1
-        self.health = 100
-
+class AbstractObj(ABC):
     def level_up(self):
         self.health += 50
         self.cost += 50
 
 
-class House(Obj):
+
+class House(AbstractObj):
+    def __init__(self):
+        self.cost = 50
+        self.level = 1
+        self.health = 100
+
     typ = "House"
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'house2.png')), (18, 18)), 0)
 
 
-class Resources:
+class Resources(ABC):
     def __init__(self):
         self.past_time = 0
         self.have_miners = False
@@ -29,6 +31,8 @@ class Resources:
         self.time = 10
         self.field = None
 
+    def get_type(self):
+        return self.__class__.__name__
     def field_state(self, field):
         self.field = field
 
@@ -48,6 +52,7 @@ class Resources:
                 human.dict_inventory[typ] += 1
                 self.past_time = time.time_ns()
 
+            # TODO make this code better with isinstance
             if typ == "wood":
                 human.skills_up("cut down tree")
             elif typ in ["iron", "gold", "copper", "stone"]:
@@ -60,23 +65,24 @@ class Resources:
 
     def get_pos(self):
         return self.field.get_posX(), self.field.get_posY()
-class MiningGold(Resources):
+
+
+class Gold(Resources):
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'gold.png')), (18, 18)), 0)
 
 
-
-class MiningIron(Resources):
+class Iron(Resources):
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'iron.png')), (18, 18)), 0)
 
 
-class MiningCopper(Resources):
+class Copper(Resources):
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'copper.png')), (18, 18)), 0)
 
 
-class MiningStone(Resources):
+class Stone(Resources):
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'stone.png')), (18, 18)), 0)
 
