@@ -7,7 +7,7 @@ from FieldProcessing import *
 from Obj import *
 
 
-class Human(AbstractObj, ABC):
+class Human(ABC):
     img = None
     plans = {"eating now": 0, "bring res": 1, "sleep": 1, "eating can wait": 1,
              "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
@@ -19,7 +19,7 @@ class Human(AbstractObj, ABC):
         return self.__class__.img
 
     def __init__(self, pole, colony):
-        self.dict_skills = {"miner": 0, "cut down tree": 0, "pick up berries": 0, "build": 0}
+        self.dict_skills = {"Gold, Iron, Stone, Cupper mine": 0, "cut down Tree": 0, "pick up Berries": 0, "build": 0}
         self.colony = colony
         self.is_findObj = False
         self.current_dstX = None
@@ -61,8 +61,12 @@ class Human(AbstractObj, ABC):
         self.field = None
 
     def skills_up(self, skill):
-        if self.dict_skills[skill] <= 5:
-            self.dict_skills[skill] += 0.0025
+        dict_skills = self.dict_skills
+        print(dict_skills)
+        for key_skill in dict_skills:
+            if skill in key_skill:
+                if dict_skills[key_skill] <= 5:
+                    dict_skills[key_skill] += 0.0025
 
     def bring_colony_res(self):
         if self.algoritm_moving(self.colony.spawn[0], self.colony.spawn[1]):
@@ -208,9 +212,8 @@ class Human(AbstractObj, ABC):
                     self.hang_out()
                     self.is_findObj = False
             else:
-                if self.algoritm_moving(self.current_dstX, self.current_dstY) and self.field in self.dict_field_types[
-                    types]:
-                    self.field.obj.mining(self, types)
+                if self.algoritm_moving(self.current_dstX, self.current_dstY) and self.field in self.dict_field_types[types]:
+                    self.field.obj.mining(self)
                 else:
                     self.hang_out()
                     self.is_findObj = False

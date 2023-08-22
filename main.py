@@ -29,7 +29,6 @@ def drawing():
     WIN.fill((0, 0, 0))
     for i in lst_field:
         pygame.draw.rect(WIN, (145, 255, 0), i)
-
     for i in lst_obj:
         pos, obj = i[0], i[1]
         WIN.blit(obj.get_img(), (pos.x, pos.y))
@@ -39,16 +38,23 @@ def drawing():
         WIN.blit(human.get_img(), (pos.x, pos.y))
 
     font = pygame.font.SysFont('comicsans', 30)
-    counter = 0
-    for item in colony1.dict_inventory_and_pers:
-        text = font.render(str(item) + ": " + str(colony1.dict_inventory_and_pers[item][0]), 1, (255, 0, 0))
-        WIN.blit(text, (40, HEIGHT - 180 + counter))
-        counter += 25
-    colony1.working()
-    # colony2.working()
-    # colony4.working()
-    # colony3.working()
+
+    counter_width = 0
+
+    for colony in Colony.lst_colony:
+        status_bar_rect = pygame.Rect(30 + counter_width, HEIGHT-210, 110, 200)
+        pygame.draw.rect(WIN,  (20, 50, 0), status_bar_rect)
+        counter_height = 0
+        text = font.render("Colony " + str(Colony.lst_colony.index(colony) + 1), 1, (255, 0, 0))
+        WIN.blit(text, (40 + counter_width, HEIGHT - 205))
+        for item in colony.dict_inventory_and_pers:
+            text = font.render(str(item) + ": " + str(colony.dict_inventory_and_pers[item][0]), 1, (255, 0, 0))
+            WIN.blit(text, (40 + counter_width, HEIGHT - 180 + counter_height))
+            counter_height += 25
+        counter_width += 150
     pygame.display.update()
+
+
 
 
 def game():
@@ -71,6 +77,12 @@ def game():
                 if len(j.lst_human) != 0:
                     for human in j.lst_human:
                         lst_human.append([pygame.Rect(0 + 26 * j.get_posX(), +26 * j.get_posY(), 18, 18), human])
+
+        colony1.working()
+        # colony2.working()
+        # colony4.working()
+        # colony3.working()
+
 
         drawing()
         lst_obj.clear()

@@ -4,12 +4,31 @@ from Human import *
 from abc import ABC, abstractmethod
 
 
+# TODO libpng warning: iCCP: known incorrect sRGB profile
+# Traceback (most recent call last):
+#   File "/home/andrei/Strategi/main.py", line 88, in <module>
+#     game()
+#   File "/home/andrei/Strategi/main.py", line 81, in game
+#     drawing()
+#   File "/home/andrei/Strategi/main.py", line 55, in drawing
+#     colony4.working()
+#   File "/home/andrei/Strategi/Colony.py", line 105, in working
+#     human.brain()
+#   File "/home/andrei/Strategi/Human.py", line 231, in brain
+#     self.extract_res("Tree")
+#   File "/home/andrei/Strategi/Human.py", line 195, in extract_res
+#     if not target_field.obj.have_miners:
+# AttributeError: 'NoneType' object has no attribute 'have_miners'
+#
+# Process finished with exit code 1
+
+
 class AbstractObj(ABC):
     img = None
+
     @abstractmethod
     def level_up(self):
         pass
-
 
     def get_img(self):
         return self.__class__.img
@@ -33,6 +52,7 @@ class House(AbstractObj):
 
 class Resources(ABC):
     img = None
+
     def __init__(self, healthe=0):
         self.past_time = 0
         self.have_miners = False
@@ -49,7 +69,7 @@ class Resources(ABC):
     def field_state(self, field):
         self.field = field
 
-    def mining(self, human, typ):
+    def mining(self, human):
         if time.time_ns() - self.past_time > 100000:
             if self.healthe <= 0:
                 self.field.delete_obj()
@@ -62,16 +82,14 @@ class Resources(ABC):
             else:
                 self.conf_obj(True)
                 self.healthe -= 10
-                human.dict_inventory[typ] += 1
+                human.dict_inventory[self.get_type()] += 1
                 self.past_time = time.time_ns()
+                human.skills_up(self.get_type())
 
             # TODO make this code better with isinstance
-            if typ == "wood":
-                human.skills_up("cut down tree")
-            elif typ in ["iron", "gold", "copper", "stone"]:
-                human.skills_up("miner")
-            elif typ == "berries":
-                human.skills_up("pick up berries")
+
+
+
 
     def conf_obj(self, status):
         self.have_miners = status

@@ -80,7 +80,7 @@ class Colony:
 
             lst_field[i][j].add_human(woman)
             self.lst_humans.append(woman)
-            Colony.lst_colony.append(self)
+        Colony.lst_colony.append(self)
 
     def working(self):
         if self.level_colony == 0:
