@@ -1,4 +1,5 @@
 import os
+from abc import ABC
 import pygame
 import random
 import time
@@ -6,12 +7,16 @@ from FieldProcessing import *
 from Obj import *
 
 
-class Human:
+class Human(AbstractObj, ABC):
+    img = None
     plans = {"eating now": 0, "bring res": 1, "sleep": 1, "eating can wait": 1,
              "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
              "can long wait eating": 2, "find res": 2}
     commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel",
                       "change actual and first on stack"]
+
+    def get_img(self):
+        return self.__class__.img
 
     def __init__(self, pole, colony):
         self.dict_skills = {"miner": 0, "cut down tree": 0, "pick up berries": 0, "build": 0}
@@ -169,23 +174,11 @@ class Human:
         self.actual = None
         self.set_actual()
 
-    # TODO try to make shooter
     def actualize_field(self, field):
-
-        if field in self.dict_field_types["Tree"]:
-            self.dict_field_types["Tree"].remove(field)
-        elif field in self.dict_field_types["Iron"]:
-            self.dict_field_types["Iron"].remove(field)
-        elif field in self.dict_field_types["Copper"]:
-            self.dict_field_types["Copper"].remove(field)
-        elif field in self.dict_field_types["Gold"]:
-            self.dict_field_types["Gold"].remove(field)
-        elif field in self.dict_field_types["Stone"]:
-            self.dict_field_types["Stone"].remove(field)
-        elif field in self.dict_field_types["Empty"]:
-            self.dict_field_types["Empty"].remove(field)
-        elif field in self.dict_field_types["Berries"]:
-            self.dict_field_types["Berries"].remove(field)
+        for keys in self.dict_field_types:
+            if field in self.dict_field_types[keys]:
+                self.dict_field_types[keys].remove(field)
+                break
         self.remember_obj(field)
 
     def extract_res(self, types):
@@ -299,19 +292,6 @@ class Human:
                     j = random.randint(begin_rand_posY, end_rand_posY)
                 else:
                     break
-            # counter = 0
-            # while True:
-            #     if counter == 99999999:
-            #         break
-            #     field = FieldProcessing.lstX_field[i][j]
-            #     for typ in self.dict_field_types:
-            #         if field in self.dict_field_types[typ] or field == self.field:
-            #             i = random.randint(begin_rand_posX, end_rand_posX)
-            #             j = random.randint(begin_rand_posY, end_rand_posY)
-            #             break
-            #     else:
-            #         break
-            #     counter +=1
             self.current_dstX = i
             self.current_dstY = j
 

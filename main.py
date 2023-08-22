@@ -31,28 +31,12 @@ def drawing():
         pygame.draw.rect(WIN, (145, 255, 0), i)
 
     for i in lst_obj:
-        obj = i[0]
-        if isinstance(i[1], House):
-            WIN.blit(House.img, (obj.x, obj.y))
-        elif isinstance(i[1], Gold):
-            WIN.blit(Gold.img, (obj.x, obj.y))
-        elif isinstance(i[1], Tree):
-            WIN.blit(Tree.img, (obj.x, obj.y))
-        elif isinstance(i[1], Stone):
-            WIN.blit(Stone.img, (obj.x, obj.y))
-        elif isinstance(i[1], Iron):
-            WIN.blit(Iron.img, (obj.x, obj.y))
-        elif isinstance(i[1], Copper):
-            WIN.blit(Copper.img, (obj.x, obj.y))
-        elif isinstance(i[1], Berries):
-            WIN.blit(Berries.img, (obj.x, obj.y))
+        pos, obj = i[0], i[1]
+        WIN.blit(obj.get_img(), (pos.x, pos.y))
 
-        for i in lst_human:
-            obj = i[0]
-            if isinstance(i[1], Man):
-                WIN.blit(Man.img, (obj.x, obj.y))
-            elif isinstance(i[1], Woman):
-                WIN.blit(Woman.img, (obj.x, obj.y))
+    for i in lst_human:
+        pos, human = i[0], i[1]
+        WIN.blit(human.get_img(), (pos.x, pos.y))
 
     font = pygame.font.SysFont('comicsans', 30)
     counter = 0

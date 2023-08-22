@@ -5,40 +5,53 @@ from abc import ABC, abstractmethod
 
 
 class AbstractObj(ABC):
+    img = None
+    @abstractmethod
+    def level_up(self):
+        pass
+
+
+    def get_img(self):
+        return self.__class__.img
+
+
+class House(AbstractObj):
+    typ = "House"
+    img = pygame.transform.rotate(
+        pygame.transform.scale(pygame.image.load(os.path.join('image', 'house2.png')), (18, 18)), 0)
+
+    def __init__(self):
+        self.need_item = "Tree"
+        self.cost = 50
+        self.level = 1
+        self.health = 100
+
     def level_up(self):
         self.health += 50
         self.cost += 50
 
 
-
-class House(AbstractObj):
-    def __init__(self):
-        self.cost = 50
-        self.level = 1
-        self.health = 100
-
-    typ = "House"
-    img = pygame.transform.rotate(
-        pygame.transform.scale(pygame.image.load(os.path.join('image', 'house2.png')), (18, 18)), 0)
-
-
 class Resources(ABC):
-    def __init__(self):
+    img = None
+    def __init__(self, healthe=0):
         self.past_time = 0
         self.have_miners = False
-        self.cost = 50
-        self.healthe = 700
+        self.healthe = healthe
         self.time = 10
         self.field = None
 
+    def get_img(self):
+        return self.__class__.img
+
     def get_type(self):
         return self.__class__.__name__
+
     def field_state(self, field):
         self.field = field
 
     def mining(self, human, typ):
         if time.time_ns() - self.past_time > 100000:
-            if self.healthe == 0:
+            if self.healthe <= 0:
                 self.field.delete_obj()
                 human.actualize_field(self.field)
                 human.is_findObj = False
@@ -68,26 +81,42 @@ class Resources(ABC):
 
 
 class Gold(Resources):
+    def __init__(self):
+        super(Gold, self).__init__(1000)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'gold.png')), (18, 18)), 0)
 
 
 class Iron(Resources):
+    def __init__(self):
+        super(Iron, self).__init__(600)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'iron.png')), (18, 18)), 0)
 
 
 class Copper(Resources):
+    def __init__(self):
+        super(Copper, self).__init__(450)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'copper.png')), (18, 18)), 0)
 
 
 class Stone(Resources):
+    def __init__(self):
+        super(Stone, self).__init__(1100)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'stone.png')), (18, 18)), 0)
 
 
 class Tree(Resources):
+
+    def __init__(self):
+        super(Tree, self).__init__(695)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'Tree.png')), (18, 18)), 0)
 
