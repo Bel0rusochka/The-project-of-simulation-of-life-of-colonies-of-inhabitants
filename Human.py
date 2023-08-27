@@ -12,6 +12,7 @@ class Human(ABC):
     plans = {"eating now": 0, "bring res": 1, "sleep": 1, "eating can wait": 1,
              "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
              "can long wait eating": 2, "find res": 2}
+
     commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel",
                       "change actual and first on stack"]
 
@@ -19,23 +20,25 @@ class Human(ABC):
         return self.__class__.img
 
     def __init__(self, pole, colony):
-        self.dict_skills = {"Gold, Iron, Stone, Cupper mine": 0, "cut down Tree": 0, "pick up Berries": 0, "build": 0}
+        self.pole = pole
         self.colony = colony
-        self.is_findObj = False
-        self.current_dstX = None
-        self.current_dstY = None
-        self.actual = None
-        self.hunger = 100
-        self.spec_human = None
+
+        self.dict_skills = {"Gold, Iron, Stone, Cupper mine": 0, "cut down Tree": 0, "pick up Berries": 0, "build": 0}
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
                                  "Berries": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
-        # self.dict_armor = {"Tree": 0, "iron": 0, "gold": 0, "copper": 0}
-        self.pole = pole
+        self.dict_plans = dict()
+
+        self.hunger = 100
         self.health = 100
         self.age = 18
         self.damage = 5
-        self.dict_plans = dict()
+
+        self.is_findObj = False
+        self.current_dstX = None
+        self.current_dstY = None
+        self.spec_human = None
+        self.actual = None
         self.field = None
 
     def field_state(self, field):
@@ -62,7 +65,6 @@ class Human(ABC):
 
     def skills_up(self, skill):
         dict_skills = self.dict_skills
-        print(dict_skills)
         for key_skill in dict_skills:
             if skill in key_skill:
                 if dict_skills[key_skill] <= 5:
@@ -74,35 +76,27 @@ class Human(ABC):
                 self.colony.dict_inventory_and_pers[name][0] += self.dict_inventory[name]
                 self.dict_inventory[name] = 0
             self.finished_plan()
-        else:
-            self.finished_plan()
-            # print(self.dict_plans, self.actual)
 
     def remember_obj(self, field):
-        if field is None:
-            field = self.field
-
         if field.is_obj():
             name_obj = field.obj.get_type()
             if field not in self.dict_field_types[name_obj]:
                 self.dict_field_types[name_obj].append(field)
-
         else:
             if field not in self.dict_field_types["Empty"]:
                 self.dict_field_types["Empty"].append(field)
 
     def algoritm_moving(self, targetX, targetY):
-
-        pos = self.get_pos()
-        if targetX != pos[0] and targetY != pos[1]:
-            distR = pow(pow(targetX - (pos[0] + 1), 2) + pow(targetY - pos[1], 2), 0.5)
-            distL = pow(pow(targetX - (pos[0] - 1), 2) + pow(targetY - pos[1], 2), 0.5)
-            distU = pow(pow(targetX - pos[0], 2) + pow(targetY - (pos[1] - 1), 2), 0.5)
-            distD = pow(pow(targetX - pos[0], 2) + pow(targetY - (pos[1] + 1), 2), 0.5)
-            distRU = pow(pow(targetX - (pos[0] + 1), 2) + pow(targetY - (pos[1] - 1), 2), 0.5)
-            distRD = pow(pow(targetX - (pos[0] + 1), 2) + pow(targetY - (pos[1] + 1), 2), 0.5)
-            distLU = pow(pow(targetX - (pos[0] - 1), 2) + pow(targetY - (pos[1] - 1), 2), 0.5)
-            distLD = pow(pow(targetX - (pos[0] - 1), 2) + pow(targetY - (pos[1] + 1), 2), 0.5)
+        posX, poxY = self.get_pos()
+        if targetX != posX or targetY != poxY:
+            distR = pow(pow(targetX - (posX + 1), 2) + pow(targetY - poxY, 2), 0.5)
+            distL = pow(pow(targetX - (posX - 1), 2) + pow(targetY - poxY, 2), 0.5)
+            distU = pow(pow(targetX - posX, 2) + pow(targetY - (poxY - 1), 2), 0.5)
+            distD = pow(pow(targetX - posX, 2) + pow(targetY - (poxY + 1), 2), 0.5)
+            distRU = pow(pow(targetX - (posX + 1), 2) + pow(targetY - (poxY - 1), 2), 0.5)
+            distRD = pow(pow(targetX - (posX + 1), 2) + pow(targetY - (poxY + 1), 2), 0.5)
+            distLU = pow(pow(targetX - (posX - 1), 2) + pow(targetY - (poxY - 1), 2), 0.5)
+            distLD = pow(pow(targetX - (posX - 1), 2) + pow(targetY - (poxY + 1), 2), 0.5)
 
             min_dist = min(distR, distL, distU, distD, distRU, distRD, distLU, distLD)
             if min_dist == distU:
@@ -187,36 +181,33 @@ class Human(ABC):
 
     def extract_res(self, types):
         lst_obj = self.dict_field_types[types]
-        posX, posY = self.get_pos()
         if len(lst_obj) == 0:
             self.hang_out()
         else:
             if not self.is_findObj:
-                min_dst = pow(pow(lst_obj[0].get_posX() - posX, 2) + pow(lst_obj[0].get_posY() - posY, 2), 0.5)
-                min_dstX = lst_obj[0].get_posX()
-                min_dstY = lst_obj[0].get_posY()
                 for target_field in lst_obj:
                     if not target_field.obj.have_miners:
-                        if min_dst > pow(
-                                pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5):
-                            min_dst = pow(
-                                pow(target_field.get_posX() - posX, 2) + pow(target_field.get_posY() - posY, 2), 0.5)
-                            min_dstX = target_field.get_posX()
-                            min_dstY = target_field.get_posY()
-                        self.current_dstX = min_dstX
-                        self.current_dstY = min_dstY
-                        self.is_findObj = True
-                if self.is_findObj:
-                    self.hang_out()
+                        self.find_obj(target_field)
+                        break
                 else:
                     self.hang_out()
-                    self.is_findObj = False
             else:
-                if self.algoritm_moving(self.current_dstX, self.current_dstY) and self.field in self.dict_field_types[types]:
+                if self.algoritm_moving(self.current_dstX, self.current_dstY):
                     self.field.obj.mining(self)
-                else:
-                    self.hang_out()
-                    self.is_findObj = False
+
+    def find_obj(self, field):
+        self.current_dstX = field.get_posX()
+        self.current_dstY = field.get_posY()
+        self.is_findObj = True
+        field.obj.conf_obj(True)
+
+    def del_current_obj(self, obj):
+        self.current_dstX = None
+        self.current_dstY = None
+        self.is_findObj = False
+        obj.conf_obj(False)
+        self.add_plan("bring res")
+        self.add_plan("change actual and first on stack")
 
     def brain(self):
         if self.actual is None:
@@ -264,6 +255,8 @@ class Human(ABC):
             self.set_actual()
         # print(self.dict_plans, self.dict_field_types)
 
+
+    #TODO CHANGE HANG_OUT DEF, use try except and delete if statemnet
     def hang_out(self):
         posX, posY = self.get_pos()
         if (self.current_dstX is None and self.current_dstY is None) or self.algoritm_moving(self.current_dstX,

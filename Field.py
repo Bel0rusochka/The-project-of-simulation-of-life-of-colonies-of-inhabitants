@@ -1,5 +1,4 @@
 class Field:
-    size = 25
 
     def __init__(self, posX, posY):
         self.lst_human = []

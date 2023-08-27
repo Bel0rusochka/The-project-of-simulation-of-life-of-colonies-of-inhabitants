@@ -74,21 +74,14 @@ class Resources(ABC):
             if self.healthe <= 0:
                 self.field.delete_obj()
                 human.actualize_field(self.field)
-                human.is_findObj = False
+                human.del_current_obj(self)
                 self.field = None
-                human.add_plan("bring res")
-                human.add_plan("change actual and first on stack")
-                self.conf_obj(False)
             else:
-                self.conf_obj(True)
                 self.healthe -= 10
                 human.dict_inventory[self.get_type()] += 1
                 self.past_time = time.time_ns()
-                human.skills_up(self.get_type())
 
-            # TODO make this code better with isinstance
-
-
+            human.skills_up(self.get_type())
 
 
     def conf_obj(self, status):
