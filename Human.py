@@ -145,7 +145,6 @@ class Human(ABC):
                 priority = Human.plans[plan]
                 if plan not in self.dict_plans.keys():
                     while True:
-                        print(2)
                         if priority in self.dict_plans.values():
                             priority += 1
                         else:
@@ -187,7 +186,6 @@ class Human(ABC):
         else:
             if not self.is_findObj:
                 for target_field in lst_obj:
-                    print(1)
                     try:
                         if not target_field.obj.have_miners:
                             self.find_obj(target_field)
@@ -260,12 +258,11 @@ class Human(ABC):
     def hang_out(self):
         posX, posY = self.get_pos()
         while True:
-            print(3)
             try:
                 random.seed(time.time())
                 i = random.randint(posX - 2, posX + 2)
                 j = random.randint(posY - 2, posY + 2)
-                self.pole.get_filed()[i][j]
+                self.pole.get_filed()[abs(i)][abs(j)]
                 self.algoritm_moving(abs(i), abs(j))
                 break
             except IndexError:

@@ -104,16 +104,10 @@ class Colony:
         for human in self.lst_humans:
             human.brain()
 
-    # TODO do optimization
     def shearing_field(self, dict_field_human):
         for i in self.dict_field_types:
-
-            merged_list = []
-            for item in self.dict_field_types[i] + dict_field_human[i]:
-                print(4)
-                if item not in merged_list:
-                    merged_list.append(item)
-            self.dict_field_types[i] = merged_list
+            merged_set = set(self.dict_field_types[i]) | set(dict_field_human[i])
+            self.dict_field_types[i] = list(merged_set)
         return self.dict_field_types
 
     def add_item(self, human, typ):
