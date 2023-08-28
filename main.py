@@ -1,11 +1,11 @@
 from Field import *
 from Obj import *
 import pygame
-import multiprocessing
-from multiprocessing import Queue
+from multiprocessing import Process
 from Human import *
 import time
 from FieldProcessing import *
+import concurrent.futures
 from Colony import *
 
 WIDTH, HEIGHT = 1920, 1080
@@ -22,9 +22,12 @@ lst_human = []
 colony1 = Colony(pole, lstXY_field)
 
 
-# colony2 = Colony(pole, lstXY_field)
-# colony3 = Colony(pole, lstXY_field)
-# colony4 = Colony(pole, lstXY_field)
+colony2 = Colony(pole, lstXY_field)
+colony3 = Colony(pole, lstXY_field)
+colony4 = Colony(pole, lstXY_field)
+
+
+
 def drawing():
     WIN.fill((0, 0, 0))
     for i in lst_field:
@@ -56,10 +59,10 @@ def drawing():
 
 
 
-
 def game():
     run = True
     # button = pygame.
+    colony_lst = [colony1, colony2, colony3, colony4]
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -78,10 +81,8 @@ def game():
                     for human in j.lst_human:
                         lst_human.append([pygame.Rect(0 + 26 * j.get_posX(), +26 * j.get_posY(), 18, 18), human])
 
-        colony1.working()
-        # colony2.working()
-        # colony4.working()
-        # colony3.working()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            executor.map(lambda obj: obj.working(), colony_lst)
 
 
         drawing()

@@ -46,7 +46,8 @@ class FieldProcessing:
             return True
         elif direction == "RU" and (pos[0] + 1 != len(FieldProcessing.lstX_field)) and (pos[1] - 1) >= 0:
             return True
-        elif direction == "RD" and (pos[0] + 1 != len(FieldProcessing.lstX_field)) and (pos[1] + 1 != len(FieldProcessing.lstX_field[0])):
+        elif direction == "RD" and (pos[0] + 1 != len(FieldProcessing.lstX_field)) and (
+                pos[1] + 1 != len(FieldProcessing.lstX_field[0])):
             return True
         elif direction == "LU" and (pos[0] - 1) >= 0 and (pos[1] - 1) >= 0:
             return True
@@ -87,7 +88,6 @@ class FieldProcessing:
         else:
             FieldProcessing.count -= 1
 
-
     @staticmethod
     def gen_filed():
         for i in range(0, 74):
@@ -103,4 +103,7 @@ class FieldProcessing:
         FieldProcessing.gen_resources(45, "Copper")
         FieldProcessing.gen_resources(20, "Gold")
 
+        return FieldProcessing.lstX_field
+
+    def get_filed(self):
         return FieldProcessing.lstX_field

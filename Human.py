@@ -145,6 +145,7 @@ class Human(ABC):
                 priority = Human.plans[plan]
                 if plan not in self.dict_plans.keys():
                     while True:
+                        print(2)
                         if priority in self.dict_plans.values():
                             priority += 1
                         else:
@@ -186,9 +187,13 @@ class Human(ABC):
         else:
             if not self.is_findObj:
                 for target_field in lst_obj:
-                    if not target_field.obj.have_miners:
-                        self.find_obj(target_field)
-                        break
+                    print(1)
+                    try:
+                        if not target_field.obj.have_miners:
+                            self.find_obj(target_field)
+                            break
+                    except AttributeError:
+                        self.actualize_field(target_field)
                 else:
                     self.hang_out()
             else:
@@ -231,65 +236,40 @@ class Human(ABC):
             else:
                 self.hang_out()
 
-        if self.hunger < 0:
+        if self.hunger == 0:
             self.field.delete_human()
-        elif self.hunger <= 15 and self.actual != "eating now":
+            self.__del__()
+        elif self.hunger == 15:
             del self.dict_plans["eating can wait"]
             self.del_plan()
             self.add_plan("stop actual")
             self.add_plan("eating now")
-        elif self.hunger <= 45 and "eating can wait" not in list(
-                self.dict_plans.keys()) and "eating can wait" != self.actual:
+        elif self.hunger == 45:
             del self.dict_plans["can long wait eating"]
             self.del_plan()
             self.add_plan("eating can wait")
-        elif self.hunger <= 75 and "can long wait eating" != self.actual and "eating can wait" not in list(
-                self.dict_plans.keys()):
+        elif self.hunger == 75:
             self.add_plan("can long wait eating")
-        # self.hunger -= 0.2
+
+
+        #
+        self.hunger -= 0.5
         self.age += 0.0001
         self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
-        # self.add_plan("cut down Tree")
-        if self.actual == "wait":
-            self.set_actual()
-        # print(self.dict_plans, self.dict_field_types)
-
-
-    #TODO CHANGE HANG_OUT DEF, use try except and delete if statemnet
     def hang_out(self):
         posX, posY = self.get_pos()
-        if (self.current_dstX is None and self.current_dstY is None) or self.algoritm_moving(self.current_dstX,
-                                                                                             self.current_dstY):
-            if posX - 2 < 0:
-                begin_rand_posX = 0
-            else:
-                begin_rand_posX = posX - 2
-            if posX + 2 > len(FieldProcessing.lstX_field) - 2:
-                end_rand_posX = len(FieldProcessing.lstX_field) - 1
-            else:
-                end_rand_posX = posX + 2
-
-            if posY - 2 < 0:
-                begin_rand_posY = 0
-            else:
-                begin_rand_posY = posY - 2
-            if posY + 2 > len(FieldProcessing.lstX_field[0]) - 2:
-                end_rand_posY = len(FieldProcessing.lstX_field[0]) - 1
-            else:
-                end_rand_posY = posY + 2
-
-            random.seed(time.time())
-            i = random.randint(begin_rand_posX, end_rand_posX)
-            j = random.randint(begin_rand_posY, end_rand_posY)
-            while True:
-                if posX == i and posY == j:
-                    i = random.randint(begin_rand_posX, end_rand_posX)
-                    j = random.randint(begin_rand_posY, end_rand_posY)
-                else:
-                    break
-            self.current_dstX = i
-            self.current_dstY = j
+        while True:
+            print(3)
+            try:
+                random.seed(time.time())
+                i = random.randint(posX - 2, posX + 2)
+                j = random.randint(posY - 2, posY + 2)
+                self.pole.get_filed()[i][j]
+                self.algoritm_moving(abs(i), abs(j))
+                break
+            except IndexError:
+                continue
 
 
 class Man(Human):
