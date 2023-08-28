@@ -185,18 +185,24 @@ class Human(ABC):
             self.hang_out()
         else:
             if not self.is_findObj:
-                for target_field in lst_obj:
+                sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
+                if 0 != len(sorted_lst):
                     try:
-                        if not target_field.obj.have_miners:
-                            self.find_obj(target_field)
-                            break
+                        self.find_obj(sorted_lst[0])
                     except AttributeError:
-                        self.actualize_field(target_field)
+                        self.actualize_field(sorted_lst[0])
+                        self.hang_out()
                 else:
                     self.hang_out()
             else:
                 if self.algoritm_moving(self.current_dstX, self.current_dstY):
-                    self.field.obj.mining(self)
+                    try:
+                        self.field.obj.mining(self)
+                    except AttributeError:
+                        self.actualize_field(self.field)
+                        self.current_dstX = None
+                        self.current_dstY = None
+                        self.is_findObj = False
 
     def find_obj(self, field):
         self.current_dstX = field.get_posX()
@@ -249,7 +255,6 @@ class Human(ABC):
         elif self.hunger == 75:
             self.add_plan("can long wait eating")
 
-
         #
         self.hunger -= 0.5
         self.age += 0.0001
@@ -262,9 +267,12 @@ class Human(ABC):
                 random.seed(time.time())
                 i = random.randint(posX - 2, posX + 2)
                 j = random.randint(posY - 2, posY + 2)
-                self.pole.get_filed()[abs(i)][abs(j)]
-                self.algoritm_moving(abs(i), abs(j))
-                break
+                if abs(i) == posX and abs(j) == posY:
+                    continue
+                else:
+                    self.pole.get_filed()[abs(i)][abs(j)]
+                    self.algoritm_moving(abs(i), abs(j))
+                    break
             except IndexError:
                 continue
 

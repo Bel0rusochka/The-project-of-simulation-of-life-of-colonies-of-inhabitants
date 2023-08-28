@@ -20,8 +20,6 @@ lst_obj = []
 lst_human = []
 
 colony1 = Colony(pole, lstXY_field)
-
-
 colony2 = Colony(pole, lstXY_field)
 colony3 = Colony(pole, lstXY_field)
 colony4 = Colony(pole, lstXY_field)
@@ -62,6 +60,7 @@ def drawing():
 def game():
     run = True
     # button = pygame.
+
     colony_lst = [colony1, colony2, colony3, colony4]
     while run:
         for event in pygame.event.get():
@@ -84,6 +83,10 @@ def game():
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             executor.map(lambda obj: obj.working(), colony_lst)
 
+        # colony1.working()
+        # colony2.working()
+        # colony3.working()
+        # colony4.working()
 
         drawing()
         lst_obj.clear()
