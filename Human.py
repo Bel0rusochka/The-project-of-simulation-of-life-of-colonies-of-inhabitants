@@ -9,15 +9,12 @@ from Obj import *
 
 class Human(ABC):
     img = None
-    plans = {"eating now": 0, "bring res": 1, "sleep": 1, "eating can wait": 1,
+    plans = {"eating": 0, "bring res": 1, "sleep": 1,
              "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
              "can long wait eating": 2, "find res": 2}
 
     commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel",
                       "change actual and first on stack"]
-
-    def get_img(self):
-        return self.__class__.img
 
     def __init__(self, pole, colony):
         self.pole = pole
@@ -28,10 +25,12 @@ class Human(ABC):
                                  "Berries": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
         self.dict_plans = dict()
+        self.chromosome = []  # TODO gen first random chromosome
 
         self.hunger = 100
+        self.sleepy = 0
         self.health = 100
-        self.age = 18
+        # self.age = 18
         self.damage = 5
 
         self.is_findObj = False
@@ -40,6 +39,9 @@ class Human(ABC):
         self.spec_human = None
         self.actual = None
         self.field = None
+
+    def get_img(self):
+        return self.__class__.img
 
     def field_state(self, field):
         self.field = field
@@ -185,24 +187,30 @@ class Human(ABC):
             self.hang_out()
         else:
             if not self.is_findObj:
-                sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
-                if 0 != len(sorted_lst):
-                    try:
-                        self.find_obj(sorted_lst[0])
-                    except AttributeError:
-                        self.actualize_field(sorted_lst[0])
-                        self.hang_out()
-                else:
-                    self.hang_out()
+                self.obj_isnt_find(lst_obj)
             else:
-                if self.algoritm_moving(self.current_dstX, self.current_dstY):
-                    try:
-                        self.field.obj.mining(self)
-                    except AttributeError:
-                        self.actualize_field(self.field)
-                        self.current_dstX = None
-                        self.current_dstY = None
-                        self.is_findObj = False
+                self.obj_is_find()
+
+    def obj_isnt_find(self, lst_obj):
+        sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
+        if 0 != len(sorted_lst):
+            try:
+                self.find_obj(sorted_lst[0])
+            except AttributeError:
+                self.actualize_field(sorted_lst[0])
+                self.hang_out()
+        else:
+            self.hang_out()
+
+    def obj_is_find(self):
+        if self.algoritm_moving(self.current_dstX, self.current_dstY):
+            try:
+                self.field.obj.mining(self)
+            except AttributeError:
+                self.actualize_field(self.field)
+                self.current_dstX = None
+                self.current_dstY = None
+                self.is_findObj = False
 
     def find_obj(self, field):
         self.current_dstX = field.get_posX()
@@ -243,21 +251,10 @@ class Human(ABC):
         if self.hunger == 0:
             self.field.delete_human()
             self.__del__()
-        elif self.hunger == 15:
-            del self.dict_plans["eating can wait"]
-            self.del_plan()
-            self.add_plan("stop actual")
-            self.add_plan("eating now")
-        elif self.hunger == 45:
-            del self.dict_plans["can long wait eating"]
-            self.del_plan()
-            self.add_plan("eating can wait")
-        elif self.hunger == 75:
-            self.add_plan("can long wait eating")
 
         #
         self.hunger -= 0.5
-        self.age += 0.0001
+        # self.age += 0.0001
         self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
     def hang_out(self):
