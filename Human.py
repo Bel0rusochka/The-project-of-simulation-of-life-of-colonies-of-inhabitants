@@ -240,21 +240,22 @@ class Human(ABC):
                 self.extract_res("Stone")
             elif self.actual == "cut down tree":
                 self.extract_res("Tree")
-            elif self.actual in ["eating now", "eating can wait", "can long wait eating"]:
-                self.actual = None
-                self.hunger = 100
             elif self.actual == "bring res":
                 self.bring_colony_res()
             else:
                 self.hang_out()
 
+        if self.actual in ["eating now", "eating can wait", "can long wait eating"]:
+            if self.colony.get_items("Berries", 1) == 1:
+                self.actual = None
+                self.hunger = 100
+
         if self.hunger == 0:
             self.field.delete_human()
             self.__del__()
 
-        #
-        self.hunger -= 0.5
-        # self.age += 0.0001
+        print( self.hunger)
+        self.hunger -= 1
         self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
     def hang_out(self):

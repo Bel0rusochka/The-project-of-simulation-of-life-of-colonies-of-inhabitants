@@ -1,7 +1,7 @@
 import Human
 import Obj
 from Field import *
-
+import Resources
 from Human import *
 import random
 import time
@@ -13,24 +13,14 @@ class FieldProcessing:
     count = 0
 
     @staticmethod
-    def gen_resources(count, typ):
+    def gen_resources(count, class_obj):
         while count != 0:
             random.seed(time.time())
             i = random.randint(0, len(FieldProcessing.lstX_field) - 1)
             j = random.randint(0, len(FieldProcessing.lstX_field[0]) - 1)
             if not FieldProcessing.lstX_field[i][j].is_obj():
-                if typ == "Tree":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Tree())
-                elif typ == "Gold":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Gold())
-                elif typ == "Iron":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Iron())
-                elif typ == "Stone":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Stone())
-                elif typ == "Copper":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Copper())
-                elif typ == "Berries":
-                    FieldProcessing.lstX_field[i][j].add_obj(Obj.Berries())
+                FieldProcessing.lstX_field[i][j].add_obj(class_obj())
+
                 count -= 1
 
     @staticmethod
@@ -96,12 +86,12 @@ class FieldProcessing:
                 lstX_field.append(Field(i, j))
             FieldProcessing.lstX_field.append(lstX_field)
 
-        FieldProcessing.gen_resources(400, "Tree")
-        FieldProcessing.gen_resources(200, "Berries")
-        FieldProcessing.gen_resources(100, "Stone")
-        FieldProcessing.gen_resources(50, "Iron")
-        FieldProcessing.gen_resources(45, "Copper")
-        FieldProcessing.gen_resources(20, "Gold")
+        FieldProcessing.gen_resources(400, Resources.Tree)
+        FieldProcessing.gen_resources(200, Resources.Berries)
+        FieldProcessing.gen_resources(100, Resources.Stone)
+        FieldProcessing.gen_resources(50, Resources.Iron)
+        FieldProcessing.gen_resources(45, Resources.Copper)
+        FieldProcessing.gen_resources(20, Resources.Gold)
 
         return FieldProcessing.lstX_field
 

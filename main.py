@@ -1,5 +1,6 @@
 from Field import *
 from Obj import *
+from Resources import *
 import pygame
 from multiprocessing import Process
 from Human import *
@@ -82,11 +83,6 @@ def game():
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             executor.map(lambda obj: obj.working(), colony_lst)
-
-        # colony1.working()
-        # colony2.working()
-        # colony3.working()
-        # colony4.working()
 
         drawing()
         lst_obj.clear()

@@ -1,10 +1,8 @@
-from typing import Dict, List, Any
-
 from Human import *
 import time
 import random
-
 from FieldProcessing import *
+
 
 class Colony:
     lst_colony = []
@@ -14,6 +12,7 @@ class Colony:
         self.lst_field = lst_field
         self.spawn = None
         self.lst_humans = []
+        self.lst_obj = []
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
                                  "Berries": []}
 
@@ -36,14 +35,14 @@ class Colony:
 
         Colony.lst_colony.append(self)
 
-    def spawn_conf(self, Obj):
+    def spawn_conf(self, HumanObj):
 
         spawn_x, spawn_y = self.spawn
         pole = self.pole
         lst_field = self.lst_field
 
         for i in range(0, 5):
-            human = Obj(pole, self)
+            human = HumanObj(pole, self)
             if spawn_x - 2 < 0:
                 begin_rand_posX = 0
             else:
@@ -81,9 +80,19 @@ class Colony:
             self.dict_field_types[i] = list(merged_set)
         return self.dict_field_types
 
-    def add_item(self, human, typ):
-        if human.dict_inventory[typ] != 0:
-            human.dict_inventory[typ] -= 1
-            self.dict_inventory_and_pers[typ][0] += 1
+    # def add_item(self, human, typ):
+    #     if human.dict_inventory[typ] != 0:
+    #         human.dict_inventory[typ] -= 1
+    #         self.dict_inventory_and_pers[typ][0] += 1
+
+    def add_obj_and_level_up(self, obj):
+        self.lst_obj.append(obj)
+        self.level_colony += 0.025
+
+    def get_items(self, types, count):
+        if self.dict_inventory_and_pers[types][0] - count >= 0:
+            self.dict_inventory_and_pers[types][0] -= count
+            return count
+        return 0
 
     # def del_item(self):
