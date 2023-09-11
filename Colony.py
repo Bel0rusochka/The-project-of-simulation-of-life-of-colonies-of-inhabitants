@@ -80,11 +80,6 @@ class Colony:
             self.dict_field_types[i] = list(merged_set)
         return self.dict_field_types
 
-    # def add_item(self, human, typ):
-    #     if human.dict_inventory[typ] != 0:
-    #         human.dict_inventory[typ] -= 1
-    #         self.dict_inventory_and_pers[typ][0] += 1
-
     def add_obj_and_level_up(self, obj):
         self.lst_obj.append(obj)
         self.level_colony += 0.025

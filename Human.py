@@ -9,12 +9,6 @@ from Obj import *
 
 class Human(ABC):
     img = None
-    plans = {"eating": 0, "bring res": 1, "sleep": 1,
-             "war": 2, "mine gold": 2, "mine iron": 2, "mine copper": 2, "mine stone": 2, "cut down tree": 2,
-             "can long wait eating": 2, "find res": 2}
-
-    commands_plans = ["stop actual", "cancel all", "cancel last", "cancel first", "cancel",
-                      "change actual and first on stack"]
 
     def __init__(self, pole, colony):
         self.pole = pole
@@ -24,19 +18,14 @@ class Human(ABC):
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
                                  "Berries": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
-        self.dict_plans = dict()
         self.chromosome = []  # TODO gen first random chromosome
 
         self.hunger = 100
-        self.sleepy = 0
         self.health = 100
-        # self.age = 18
-        self.damage = 5
 
         self.is_findObj = False
         self.current_dstX = None
         self.current_dstY = None
-        self.spec_human = None
         self.actual = None
         self.field = None
 
@@ -77,7 +66,7 @@ class Human(ABC):
             for name in self.dict_inventory:
                 self.colony.dict_inventory_and_pers[name][0] += self.dict_inventory[name]
                 self.dict_inventory[name] = 0
-            self.finished_plan()
+                self.actual = None
 
     def remember_obj(self, field):
         if field.is_obj():
@@ -121,59 +110,6 @@ class Human(ABC):
         else:
             return True
 
-    def add_plan(self, plan, most_imp=False):
-        if most_imp:
-            self.dict_plans[plan] = 1
-        else:
-            if plan in Human.commands_plans:
-                if plan == "stop actual":
-                    if self.actual is not None:
-                        self.add_plan(self.actual, True)
-                        self.actual = None
-                elif plan == "cancel all":
-                    self.dict_plans = dict()
-                elif plan == "cancel first":
-                    del self.dict_plans[list(self.dict_plans.keys())[0]]
-                elif plan == "cancel last":
-                    del self.dict_plans[list(self.dict_plans.keys())[-1]]
-                elif plan == "cancel":
-                    self.actual = None
-                elif plan == "change actual and first on stack":
-                    if self.actual is not None:
-                        tmp = self.actual
-                        self.set_actual()
-                        self.add_plan(tmp, True)
-            else:
-                priority = Human.plans[plan]
-                if plan not in self.dict_plans.keys():
-                    while True:
-                        if priority in self.dict_plans.values():
-                            priority += 1
-                        else:
-                            self.dict_plans[plan] = priority
-                            break
-
-        self.dict_plans = dict(sorted(self.dict_plans.items(), key=lambda x: x[1]))
-
-    def del_plan(self):
-        count = 2
-        for i in self.dict_plans:
-            if self.dict_plans[i] > 1:
-                self.dict_plans[i] = count
-                count += 1
-
-    def set_actual(self):
-        if len(self.dict_plans.keys()) != 0:
-            self.actual = list(self.dict_plans.keys())[0]
-            self.dict_plans.pop(self.actual)
-            self.del_plan()
-        else:
-            self.actual = "wait"
-
-    def finished_plan(self):
-        self.actual = None
-        self.set_actual()
-
     def actualize_field(self, field):
         for keys in self.dict_field_types:
             if field in self.dict_field_types[keys]:
@@ -186,12 +122,12 @@ class Human(ABC):
         if len(lst_obj) == 0:
             self.hang_out()
         else:
-            if not self.is_findObj:
-                self.obj_isnt_find(lst_obj)
+            if self.is_findObj:
+                self.obj_is_extract()
             else:
-                self.obj_is_find()
+                self.obj_not_extract(lst_obj)
 
-    def obj_isnt_find(self, lst_obj):
+    def obj_not_extract(self, lst_obj):
         sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
         if 0 != len(sorted_lst):
             try:
@@ -202,7 +138,7 @@ class Human(ABC):
         else:
             self.hang_out()
 
-    def obj_is_find(self):
+    def obj_is_extract(self):
         if self.algoritm_moving(self.current_dstX, self.current_dstY):
             try:
                 self.field.obj.mining(self)
@@ -223,39 +159,37 @@ class Human(ABC):
         self.current_dstY = None
         self.is_findObj = False
         obj.conf_obj(False)
-        self.add_plan("bring res")
-        self.add_plan("change actual and first on stack")
+        self.actual = "bring res"
 
     def brain(self):
-        if self.actual is None:
-            self.set_actual()
+        if self.actual == "mine gold":
+            self.extract_res("Gold")
+        elif self.actual == "mine iron":
+            self.extract_res("Iron")
+        elif self.actual == "mine copper":
+            self.extract_res("Copper")
+        elif self.actual == "mine stone":
+            self.extract_res("Stone")
+        elif self.actual == "cut down tree":
+            self.extract_res("Tree")
+        elif self.actual == "bring res":
+            self.bring_colony_res()
+        elif self.actual == "bild house":
+            self.build()
         else:
-            if self.actual == "mine gold":
-                self.extract_res("Gold")
-            elif self.actual == "mine iron":
-                self.extract_res("Iron")
-            elif self.actual == "mine copper":
-                self.extract_res("Copper")
-            elif self.actual == "mine stone":
-                self.extract_res("Stone")
-            elif self.actual == "cut down tree":
-                self.extract_res("Tree")
-            elif self.actual == "bring res":
-                self.bring_colony_res()
-            else:
-                self.hang_out()
+            self.hang_out()
 
         if self.actual in ["eating now", "eating can wait", "can long wait eating"]:
             if self.colony.get_items("Berries", 1) == 1:
                 self.actual = None
                 self.hunger = 100
 
+        # TODO del human from pole
         if self.hunger == 0:
             self.field.delete_human()
             self.__del__()
 
-        print( self.hunger)
-        self.hunger -= 1
+        self.hunger -= 0.25
         self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
     def hang_out(self):
@@ -273,6 +207,15 @@ class Human(ABC):
                     break
             except IndexError:
                 continue
+
+    def build(self):
+        if not self.field.is_obj():
+            if self.colony.get_items("Tree", 50) == 50:
+                house = Obj.House(self.colony)
+                self.field.add_obj(house)
+                self.colony.add_obj_and_level_up(house)
+        else:
+            self.hang_out()
 
 
 class Man(Human):

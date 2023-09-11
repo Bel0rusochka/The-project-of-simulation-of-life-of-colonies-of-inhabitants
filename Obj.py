@@ -4,33 +4,15 @@ from Human import *
 from abc import ABC, abstractmethod
 
 
-# TODO libpng warning: iCCP: known incorrect sRGB profile
-# Traceback (most recent call last):
-#   File "/home/andrei/Strategi/main.py", line 88, in <module>
-#     game()
-#   File "/home/andrei/Strategi/main.py", line 81, in game
-#     drawing()
-#   File "/home/andrei/Strategi/main.py", line 55, in drawing
-#     colony4.working()
-#   File "/home/andrei/Strategi/Colony.py", line 105, in working
-#     human.brain()
-#   File "/home/andrei/Strategi/Human.py", line 231, in brain
-#     self.extract_res("Tree")
-#   File "/home/andrei/Strategi/Human.py", line 195, in extract_res
-#     if not target_field.obj.have_miners:
-# AttributeError: 'NoneType' object has no attribute 'have_miners'
-#
-# Process finished with exit code 1
-
-
 class AbstractObj(ABC):
     img = None
 
     def __init__(self, need_item, colony_owner):
         self.need_item = need_item
-        self.level = 0
+        self.level = 1
         self.health = 100
         self.colony_owner = colony_owner
+        self.field = None
 
     @abstractmethod
     def level_up(self):
