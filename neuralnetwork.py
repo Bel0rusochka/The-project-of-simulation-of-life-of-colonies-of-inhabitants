@@ -36,7 +36,8 @@ class NNetwork:
         x[x <= 0] = 0
         return x
 
-    def acts_softmax(self, x):
+    @staticmethod
+    def acts_softmax(x):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=0)
 

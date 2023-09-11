@@ -5,6 +5,7 @@ import random
 import time
 from FieldProcessing import *
 from Obj import *
+import numpy as np
 
 
 class Human(ABC):
@@ -16,7 +17,7 @@ class Human(ABC):
         self.lst_commands = ["cut down tree", "extract berries", "build house", "eating"]
         self.dict_skills = {"Gold, Iron, Stone, Cupper mine": 0, "cut down Tree": 0, "pick up Berries": 0, "build": 0}
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
-                                 "Berries": []}
+                                 "Berries": [], "House": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
         self.chromosome = []
 
@@ -128,15 +129,21 @@ class Human(ABC):
                 self.obj_not_extract(lst_obj)
 
     def obj_not_extract(self, lst_obj):
-        sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
-        if 0 != len(sorted_lst):
-            try:
-                self.find_obj(sorted_lst[0])
-            except AttributeError:
-                self.actualize_field(sorted_lst[0])
+        try:
+            sorted_lst = list(filter(lambda field: not field.obj.have_miners, lst_obj))
+            if 0 != len(sorted_lst):
+                try:
+                    self.find_obj(sorted_lst[0])
+                except AttributeError:
+                    self.actualize_field(sorted_lst[0])
+                    self.hang_out()
+            else:
                 self.hang_out()
-        else:
-            self.hang_out()
+        except AttributeError:
+            for i in lst_obj:
+                if i is None:
+                    self.actualize_field(i)
+
 
     def obj_is_extract(self):
         if self.algoritm_moving(self.current_dstX, self.current_dstY):
@@ -167,6 +174,7 @@ class Human(ABC):
             self.dict_inventory[name] = 0
 
     def brain(self):
+        print(self.actual)
         if self.hunger == 0:
             self.died()
         else:
@@ -183,7 +191,7 @@ class Human(ABC):
                 self.extract_res("Stone")
             elif self.actual == "cut down tree":
                 self.extract_res("Tree")
-            elif self.actual == "bild house":
+            elif self.actual == "build house":
                 self.build()
             elif self.actual == "extract berries":
                 self.extract_res("Berries")
@@ -193,6 +201,11 @@ class Human(ABC):
                     self.hunger = 100
             else:
                 self.hang_out()
+
+        self.calculate_reword()
+
+    def calculate_reword(self):
+        self.reword = (self.health + self.hunger + self.colony.level_colony * 100)/100
 
     def hang_out(self):
         posX, posY = self.get_pos()
@@ -209,6 +222,15 @@ class Human(ABC):
                     break
             except IndexError:
                 continue
+
+    def mutation_chromosome(self, mutation_rate):
+        chromosome = self.chromosome
+        mutated_chromosome = np.copy(chromosome)
+        for i in range(len(chromosome)):
+            if np.random.rand() < mutation_rate:
+                mutation_value = np.random.uniform(-0.5, 0.5)
+                mutated_chromosome[i] += mutation_value
+        self.chromosome = mutated_chromosome
 
     def build(self):
         if not self.field.is_obj():

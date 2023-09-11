@@ -86,12 +86,12 @@ class FieldProcessing:
                 lstX_field.append(Field(i, j))
             FieldProcessing.lstX_field.append(lstX_field)
 
-        FieldProcessing.gen_resources(400, Resources.Tree)
-        FieldProcessing.gen_resources(200, Resources.Berries)
-        FieldProcessing.gen_resources(100, Resources.Stone)
-        FieldProcessing.gen_resources(50, Resources.Iron)
-        FieldProcessing.gen_resources(45, Resources.Copper)
-        FieldProcessing.gen_resources(20, Resources.Gold)
+        FieldProcessing.gen_resources(600, Resources.Tree)
+        FieldProcessing.gen_resources(400, Resources.Berries)
+        # FieldProcessing.gen_resources(100, Resources.Stone)
+        # FieldProcessing.gen_resources(50, Resources.Iron)
+        # FieldProcessing.gen_resources(45, Resources.Copper)
+        # FieldProcessing.gen_resources(20, Resources.Gold)
 
         return FieldProcessing.lstX_field
 
