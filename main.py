@@ -84,9 +84,11 @@ def game():
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             executor.map(lambda obj: obj.working(), colony_lst)
 
+
         drawing()
         lst_obj.clear()
         lst_human.clear()
+
     pygame.quit()
 
 

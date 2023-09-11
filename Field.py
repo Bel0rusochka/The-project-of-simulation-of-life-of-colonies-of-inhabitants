@@ -1,3 +1,6 @@
+import time
+
+
 class Field:
 
     def __init__(self, posX, posY):
@@ -26,7 +29,7 @@ class Field:
     def is_human(self, human):
         return True if human in self.lst_human else False
 
-    def delete_human(self,human):
+    def delete_human(self, human):
         human.delete_field()
         self.lst_human.remove(human)
 

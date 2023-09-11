@@ -86,5 +86,8 @@ class Tree(Resources):
 
 
 class Berries(Resources):
+    def __init__(self):
+        super(Berries, self).__init__(100)
+
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'berries.png')), (18, 18)), 0)

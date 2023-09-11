@@ -13,15 +13,16 @@ class Human(ABC):
     def __init__(self, pole, colony):
         self.pole = pole
         self.colony = colony
-
+        self.lst_commands = ["cut down tree", "extract berries", "build house", "eating"]
         self.dict_skills = {"Gold, Iron, Stone, Cupper mine": 0, "cut down Tree": 0, "pick up Berries": 0, "build": 0}
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
                                  "Berries": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
-        self.chromosome = []  # TODO gen first random chromosome
+        self.chromosome = []
 
         self.hunger = 100
         self.health = 100
+        self.reword = 0
 
         self.is_findObj = False
         self.current_dstX = None
@@ -51,8 +52,14 @@ class Human(ABC):
     def get_pos(self):
         return self.field.get_posX(), self.field.get_posY()
 
+    def set_actual(self, num):
+        self.actual = self.lst_commands[num]
+
     def delete_field(self):
         self.field = None
+
+    def set_chromosome(self, chromosome):
+        self.chromosome = chromosome
 
     def skills_up(self, skill):
         dict_skills = self.dict_skills
@@ -60,13 +67,6 @@ class Human(ABC):
             if skill in key_skill:
                 if dict_skills[key_skill] <= 5:
                     dict_skills[key_skill] += 0.0025
-
-    def bring_colony_res(self):
-        if self.algoritm_moving(self.colony.spawn[0], self.colony.spawn[1]):
-            for name in self.dict_inventory:
-                self.colony.dict_inventory_and_pers[name][0] += self.dict_inventory[name]
-                self.dict_inventory[name] = 0
-                self.actual = None
 
     def remember_obj(self, field):
         if field.is_obj():
@@ -159,38 +159,40 @@ class Human(ABC):
         self.current_dstY = None
         self.is_findObj = False
         obj.conf_obj(False)
-        self.actual = "bring res"
+        self.bring_colony_res()
+
+    def bring_colony_res(self):
+        for name in self.dict_inventory:
+            self.colony.dict_inventory_and_pers[name][0] += self.dict_inventory[name]
+            self.dict_inventory[name] = 0
 
     def brain(self):
-        if self.actual == "mine gold":
-            self.extract_res("Gold")
-        elif self.actual == "mine iron":
-            self.extract_res("Iron")
-        elif self.actual == "mine copper":
-            self.extract_res("Copper")
-        elif self.actual == "mine stone":
-            self.extract_res("Stone")
-        elif self.actual == "cut down tree":
-            self.extract_res("Tree")
-        elif self.actual == "bring res":
-            self.bring_colony_res()
-        elif self.actual == "bild house":
-            self.build()
-        else:
-            self.hang_out()
-
-        if self.actual in ["eating now", "eating can wait", "can long wait eating"]:
-            if self.colony.get_items("Berries", 1) == 1:
-                self.actual = None
-                self.hunger = 100
-
-        # TODO del human from pole
         if self.hunger == 0:
-            self.field.delete_human()
-            self.__del__()
+            self.died()
+        else:
+            self.hunger -= 0.25
+            self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
 
-        self.hunger -= 0.25
-        self.dict_field_types = self.colony.shearing_field(self.dict_field_types)
+            if self.actual == "mine gold":
+                self.extract_res("Gold")
+            elif self.actual == "mine iron":
+                self.extract_res("Iron")
+            elif self.actual == "mine copper":
+                self.extract_res("Copper")
+            elif self.actual == "mine stone":
+                self.extract_res("Stone")
+            elif self.actual == "cut down tree":
+                self.extract_res("Tree")
+            elif self.actual == "bild house":
+                self.build()
+            elif self.actual == "extract berries":
+                self.extract_res("Berries")
+            elif self.actual == "eating":
+                if self.colony.get_items("Berries", 1) == 1:
+                    self.actual = None
+                    self.hunger = 100
+            else:
+                self.hang_out()
 
     def hang_out(self):
         posX, posY = self.get_pos()
@@ -216,6 +218,10 @@ class Human(ABC):
                 self.colony.add_obj_and_level_up(house)
         else:
             self.hang_out()
+
+    def died(self):
+        self.colony.lst_humans.remove(self)
+        self.field.delete_human(self)
 
 
 class Man(Human):

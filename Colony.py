@@ -2,6 +2,7 @@ from Human import *
 import time
 import random
 from FieldProcessing import *
+import neuralnetwork
 
 
 class Colony:
@@ -19,10 +20,14 @@ class Colony:
         self.level_colony = 0
         self.dict_inventory_and_pers = {"Tree": [0, 0], "Iron": [0, 0], "Gold": [0, 0], "Copper": [0, 0],
                                         "Berries": [0, 0], "Stone": [0, 0]}
-
-        self.dict_spec = {"woodman": [], "miner gold": [], "miner stone": [], "miner iron": [], "miner copper": [],
-                          "pick up berries": [], "builder": [], "hunter": [], "warrior": [], "farmer": []}
         self.spawn_human()
+        self.net = neuralnetwork.NNetwork(5, 4, 4)
+        self.set_chromosome_humans()
+
+    def set_chromosome_humans(self):
+        for hm in self.lst_humans:
+            net = neuralnetwork.NNetwork(5, 4, 4)
+            hm.set_chromosome(net.get_weights())
 
     def spawn_human(self):
         random.seed(time.time())
@@ -72,7 +77,13 @@ class Colony:
 
     def working(self):
         for human in self.lst_humans:
+            self.net.set_weights(human.chromosome)
+
+            lst_action = self.net.predict([human.health, human.hunger, self.level_colony, self.dict_inventory_and_pers["Tree"][0], self.dict_inventory_and_pers["Berries"][0]])
+            lst_action = list(map(lambda x: round(x, 5), lst_action))
+            human.set_actual(lst_action.index(max(lst_action)))
             human.brain()
+
 
     def shearing_field(self, dict_field_human):
         for i in self.dict_field_types:
@@ -89,5 +100,3 @@ class Colony:
             self.dict_inventory_and_pers[types][0] -= count
             return count
         return 0
-
-    # def del_item(self):
