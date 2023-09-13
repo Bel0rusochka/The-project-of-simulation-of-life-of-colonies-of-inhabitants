@@ -95,5 +95,11 @@ class FieldProcessing:
 
         return FieldProcessing.lstX_field
 
-    def get_filed(self):
+    @staticmethod
+    def get_filed():
         return FieldProcessing.lstX_field
+
+    @staticmethod
+    def clean_class():
+        FieldProcessing.lstX_field = []
+        FieldProcessing.count = 0

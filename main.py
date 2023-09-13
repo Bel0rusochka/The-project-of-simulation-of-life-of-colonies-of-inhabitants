@@ -9,22 +9,6 @@ from FieldProcessing import *
 import concurrent.futures
 from Colony import *
 
-WIDTH, HEIGHT = 1920, 1080
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game")
-pygame.font.init()
-FPS = 60
-pole = FieldProcessing()
-lstXY_field = pole.gen_filed()
-lst_field = []
-lst_obj = []
-lst_human = []
-
-colony1 = Colony(pole, lstXY_field)
-colony2 = Colony(pole, lstXY_field)
-colony3 = Colony(pole, lstXY_field)
-colony4 = Colony(pole, lstXY_field)
-
 
 
 def drawing():
@@ -59,14 +43,19 @@ def drawing():
 
 
 def game():
+    global rn
     run = True
     # button = pygame.
 
     colony_lst = [colony1, colony2, colony3, colony4]
     while run:
+        run = Colony.check_game_over()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                for colony in colony_lst:
+                    colony.save_humans_chromosome()
                 run = False
+                rn = False
             # elif event.type == pygame.MOUSEMOTION:
             #     print("Позиция мыши: ", event.pos)
             #     # elif event.type == pygame.MOU
@@ -83,9 +72,7 @@ def game():
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             executor.map(lambda obj: obj.working(), colony_lst)
-
-        for cc in colony_lst:
-            cc.working()
+        executor.shutdown()
         drawing()
         lst_obj.clear()
         lst_human.clear()
@@ -94,4 +81,24 @@ def game():
 
 
 if __name__ == "__main__":
-    game()
+    rn = True
+    while rn:
+        WIDTH, HEIGHT = 1920, 1080
+        WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Game")
+        pygame.font.init()
+        FPS = 60
+
+        pole = FieldProcessing()
+        lstXY_field = pole.gen_filed()
+        lst_field = []
+        lst_obj = []
+        lst_human = []
+        colony1 = Colony(pole, lstXY_field)
+        colony2 = Colony(pole, lstXY_field)
+        colony3 = Colony(pole, lstXY_field)
+        colony4 = Colony(pole, lstXY_field)
+        Colony.load_humans_chromosome()
+        game()
+        FieldProcessing.clean_class()
+        Colony.clean_class()

@@ -23,7 +23,8 @@ class Human(ABC):
 
         self.hunger = 100
         self.health = 100
-        self.reword = 0
+        self.fitness = 0
+        self.day = 0
 
         self.is_findObj = False
         self.current_dstX = None
@@ -142,6 +143,8 @@ class Human(ABC):
         except AttributeError:
             for i in lst_obj:
                 if i is None:
+                    print(i, self.field)
+                    exit(0)
                     self.actualize_field(i)
 
 
@@ -174,7 +177,6 @@ class Human(ABC):
             self.dict_inventory[name] = 0
 
     def brain(self):
-        print(self.actual)
         if self.hunger == 0:
             self.died()
         else:
@@ -201,11 +203,14 @@ class Human(ABC):
                     self.hunger = 100
             else:
                 self.hang_out()
-
+        self.day +=1
         self.calculate_reword()
 
     def calculate_reword(self):
-        self.reword = (self.health + self.hunger + self.colony.level_colony * 100)/100
+        bst_fitness =  100 + 100 + (self.day * 0.025)
+        total_fitness = (self.health + self.hunger + self.colony.level_colony)
+        print(total_fitness/bst_fitness)
+        self.fitness = total_fitness/bst_fitness
 
     def hang_out(self):
         posX, posY = self.get_pos()
