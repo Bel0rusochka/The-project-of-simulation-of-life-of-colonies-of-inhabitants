@@ -11,7 +11,9 @@ import numpy as np
 class Human(ABC):
     img = None
 
-    def __init__(self, pole, colony):
+    def __init__(self, pole, colony, filter_color):
+
+        self.filter_color = filter_color
         self.pole = pole
         self.colony = colony
         self.lst_commands = ["cut down tree", "extract berries", "build house", "eating"]
@@ -19,6 +21,7 @@ class Human(ABC):
         self.dict_field_types = {"Tree": [], "Empty": [], "Gold": [], "Iron": [], "Copper": [], "Stone": [],
                                  "Berries": [], "House": []}
         self.dict_inventory = {"Tree": 0, "Iron": 0, "Gold": 0, "Copper": 0, "Berries": 0, "Stone": 0}
+        self.dict_inventory = {"Tree": 0, "Berries": 0}
         self.chromosome = []
 
         self.hunger = 100
@@ -79,7 +82,7 @@ class Human(ABC):
             if field not in self.dict_field_types["Empty"]:
                 self.dict_field_types["Empty"].append(field)
 
-    def algoritm_moving(self, targetX, targetY):
+    def algorithm_moving(self, targetX, targetY):
         posX, poxY = self.get_pos()
         if targetX != posX or targetY != poxY:
             distR = pow(pow(targetX - (posX + 1), 2) + pow(targetY - poxY, 2), 0.5)
@@ -141,15 +144,10 @@ class Human(ABC):
             else:
                 self.hang_out()
         except AttributeError:
-            for i in lst_obj:
-                if i is None:
-                    print(i, self.field)
-                    exit(0)
-                    self.actualize_field(i)
-
+            self.hang_out()
 
     def obj_is_extract(self):
-        if self.algoritm_moving(self.current_dstX, self.current_dstY):
+        if self.algorithm_moving(self.current_dstX, self.current_dstY):
             try:
                 self.field.obj.mining(self)
             except AttributeError:
@@ -177,6 +175,7 @@ class Human(ABC):
             self.dict_inventory[name] = 0
 
     def brain(self):
+        print(self.actual, self.fitness)
         if self.hunger == 0:
             self.died()
         else:
@@ -203,14 +202,14 @@ class Human(ABC):
                     self.hunger = 100
             else:
                 self.hang_out()
-        self.day +=1
+        self.day += 1
         self.calculate_reword()
 
     def calculate_reword(self):
-        bst_fitness =  100 + 100 + (self.day * 0.025)
+        bst_fitness = 100 + 100 + (self.day * 0.025)
         total_fitness = (self.health + self.hunger + self.colony.level_colony)
-        print(total_fitness/bst_fitness)
-        self.fitness = total_fitness/bst_fitness
+        # print(total_fitness/bst_fitness)
+        self.fitness = total_fitness / bst_fitness
 
     def hang_out(self):
         posX, posY = self.get_pos()
@@ -223,7 +222,7 @@ class Human(ABC):
                     continue
                 else:
                     self.pole.get_filed()[abs(i)][abs(j)]
-                    self.algoritm_moving(abs(i), abs(j))
+                    self.algorithm_moving(abs(i), abs(j))
                     break
             except IndexError:
                 continue
@@ -251,7 +250,7 @@ class Human(ABC):
         self.field.delete_human(self)
 
 
-class Man(Human):
+class Man(Human, ):
     img = pygame.transform.rotate(
         pygame.transform.scale(pygame.image.load(os.path.join('image', 'man.png')), (18, 18)), 0)
 

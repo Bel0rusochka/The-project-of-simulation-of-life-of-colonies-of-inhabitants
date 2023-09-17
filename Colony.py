@@ -4,10 +4,12 @@ import random
 from FieldProcessing import *
 import neuralnetwork
 import pickle
+import concurrent.futures
 
 
 class Colony:
     lst_colony = []
+    lst_color_flt = [(255, 255, 255, 255), (0, 0, 255, 255), (255, 0, 0, 255), (0, 255, 0, 255)]
 
     @staticmethod
     def clean_class():
@@ -29,14 +31,18 @@ class Colony:
         if len(lst_colony) > 1:
             return True
         else:
-            save_chromosome = lst_colony[0].get_chromosome()
-            for i in range(1, 5):
-                with open("save/chromosome_list_colony" + str(i) + ".pkl", 'wb') as file:
-                    pickle.dump(save_chromosome, file)
+            try:
+                save_chromosome = lst_colony[0].get_chromosome()
+                for i in range(1, 5):
+                    with open("save/chromosome_list_colony" + str(i) + ".pkl", 'wb') as file:
+                        pickle.dump(save_chromosome, file)
+            except IndexError:
+                pass
             return False
 
     def __init__(self, pole, lst_field):
         self.pole = pole
+        self.color_flt = Colony.lst_color_flt[len(Colony.lst_colony)][0:3]
         self.lst_field = lst_field
         self.spawn = None
         self.lst_humans = []
@@ -45,8 +51,7 @@ class Colony:
                                  "Berries": [], "House": []}
 
         self.level_colony = 0
-        self.dict_inventory_and_pers = {"Tree": [0, 0], "Iron": [0, 0], "Gold": [0, 0], "Copper": [0, 0],
-                                        "Berries": [0, 0], "Stone": [0, 0]}
+        self.dict_inventory_and_pers = {"Tree": [0, 0], "Berries": [0, 0]}
         self.spawn_human()
         self.net = neuralnetwork.NNetwork(5, 4, 4)
         self.set_chromosome_humans()
@@ -83,9 +88,10 @@ class Colony:
         spawn_x, spawn_y = self.spawn
         pole = self.pole
         lst_field = self.lst_field
+        num_flt = len(Colony.lst_colony)
 
         for i in range(0, 5):
-            human = HumanObj(pole, self)
+            human = HumanObj(pole, self, Colony.lst_color_flt[num_flt])
             if spawn_x - 2 < 0:
                 begin_rand_posX = 0
             else:
@@ -115,19 +121,23 @@ class Colony:
 
     def working(self):
         if len(self.lst_humans) != 0:
-            for human in self.lst_humans:
-                self.net.set_weights(human.chromosome)
 
-                lst_action = self.net.predict(
-                    [human.health, human.hunger, self.level_colony, self.dict_inventory_and_pers["Tree"][0],
-                     self.dict_inventory_and_pers["Berries"][0]])
-                lst_action = list(map(lambda x: round(x, 5), lst_action))
-                human.set_actual(lst_action.index(max(lst_action)))
-                human.brain()
-
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                executor.map(lambda hm: self.process_human(hm), self.lst_humans)
+            executor.shutdown()
             self.crossing_over()
         else:
             Colony.lst_colony.remove(self)
+
+    def process_human(self, hm):
+        self.net.set_weights(hm.chromosome)
+
+        lst_action = self.net.predict(
+            [hm.health, hm.hunger, self.level_colony, self.dict_inventory_and_pers["Tree"][0],
+             self.dict_inventory_and_pers["Berries"][0]])
+        lst_action = list(map(lambda x: round(x, 5), lst_action))
+        hm.set_actual(lst_action.index(max(lst_action)))
+        hm.brain()
 
     def shearing_field(self, dict_field_human):
         for i in self.dict_field_types:
@@ -144,6 +154,9 @@ class Colony:
             self.dict_inventory_and_pers[types][0] -= count
             return count
         return 0
+
+    def get_color_flt(self):
+        return self.color_flt
 
     def select_chromosomes(self):
         lst_chromosomes = [hm.chromosome for hm in sorted(self.lst_humans, key=lambda x: x.fitness)]

@@ -80,7 +80,7 @@ class FieldProcessing:
 
     @staticmethod
     def gen_filed():
-        for i in range(0, 74):
+        for i in range(0, 73):
             lstX_field = []
             for j in range(0, 33):
                 lstX_field.append(Field(i, j))

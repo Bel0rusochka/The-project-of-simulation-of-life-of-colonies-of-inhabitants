@@ -1,7 +1,7 @@
 import os
 import pygame
-from Human import *
 from abc import ABC, abstractmethod
+from Human import *
 
 
 class Resources(ABC):

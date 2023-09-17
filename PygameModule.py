@@ -73,14 +73,15 @@ class PygameModule:
 
         font = pygame.font.SysFont('comicsans', 30)
         counter_width = 0
-        for colony in Colony.lst_colony:
+
+        for num, colony in enumerate(Colony.lst_colony):
             status_bar_rect = pygame.Rect(30 + counter_width, HEIGHT - 210, 110, 200)
             pygame.draw.rect(WIN, (20, 50, 0), status_bar_rect)
             counter_height = 0
-            text = font.render("Colony " + str(Colony.lst_colony.index(colony) + 1), 1, (255, 0, 0))
+            text = font.render("Colony " + str(Colony.lst_colony.index(colony) + 1), 1, colony.get_color_flt())
             WIN.blit(text, (40 + counter_width, HEIGHT - 205))
             for item in colony.dict_inventory_and_pers:
-                text = font.render(str(item) + ": " + str(colony.dict_inventory_and_pers[item][0]), 1, (255, 0, 0))
+                text = font.render(str(item) + ": " + str(colony.dict_inventory_and_pers[item][0]), 1, colony.get_color_flt())
                 WIN.blit(text, (40 + counter_width, HEIGHT - 180 + counter_height))
                 counter_height += 25
             counter_width += 150
@@ -98,7 +99,17 @@ class PygameModule:
 
         for i in self.lst_human:
             pos, human = i[0], i[1]
-            WIN.blit(human.get_img(), (pos.x, pos.y))
+            img = human.get_img()
+            copy_img = img.copy()
+
+            filter_color = human.filter_color
+            filtered_surface = pygame.Surface(copy_img.get_size(), pygame.SRCALPHA)
+            filtered_surface.fill(filter_color)
+
+            copy_img.blit(filtered_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+
+            WIN.blit(copy_img, (pos.x, pos.y))
+
 
     def get_status_break_event(self):
         return self.break_event
